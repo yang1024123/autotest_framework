@@ -50,8 +50,6 @@ def get_caseid():
     except requests.exceptions.RequestException as e:
         allure.attach(f"Request failed: {e}", name="Error Log")
         return None
-
-
 @pytest.fixture(scope='function')
 def setup_addcase(get_fileDocId):
     print('setup开始')

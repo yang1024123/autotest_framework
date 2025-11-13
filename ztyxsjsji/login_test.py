@@ -40,8 +40,6 @@ def test_login_errorPwd():
         assert "密码错误" in response.text
     except RequestException as e:
         pytest.skip(f"API不可达: {str(e)}")
-
-
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 @allure.feature("退出登录")
 def test_loginout(bjdky_get_authorization):
