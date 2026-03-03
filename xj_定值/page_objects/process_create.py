@@ -1,10 +1,6 @@
 import logging
 import os
-import time
-
-from selenium.webdriver import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -20,7 +16,7 @@ class ProcessCreatePage:
         By.XPATH, "//div[contains(@class,'lineInputImg') and contains(@class,'el-popover__reference')]")
         self.line_search = (By.XPATH, "//input[@placeholder='请选择线路' and @class='el-input__inner']")
         self.device_checkbox = (By.XPATH,
-                                "//label[@class='el-checkbox select-round' and contains(span[@class='el-checkbox__label'], '测试设备200')]")
+                                "//label[@class='el-checkbox select-round' and contains(span[@class='el-checkbox__label'], '测试设备280')]")
         self.flow_selector = (By.CSS_SELECTOR, "input.el-input__inner[placeholder='请选择审批流']")
         self.flow_option = (By.XPATH, "//span[text()='哈密定值整定流程']")
         self.scrollable_div = (By.XPATH, '//div[@class="addContent"]')
@@ -65,27 +61,21 @@ class ProcessCreatePage:
         self._wait_element_clickable(self.flow_selector).click()
         self._wait_element_clickable(self.flow_option).click()
 
-    def upload_file(self, filename='example.jpg'):
+    def upload_file(self, filename: str = 'example.jpg') -> None:
+        if not hasattr(self, 'driver') or self.driver is None:
+            raise ValueError("Driver is not initialized")
         try:
-            # 使用显式等待代替硬编码sleep
-            upload_div = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, '.el-upload.el-upload--picture-card'))
-            )
-            upload_div.click()
-
-            # 等待上传输入框出现
-            upload_input = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, '.el-upload__input'))
-            )
-
-            # 使用参数化文件路径
+            # 设置文件路径
             file_path = os.path.abspath(os.path.join('uploads', filename))
-            upload_input.send_keys(file_path)
-
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"文件路径不存在: {file_path}")
+            elements = self.driver.find_elements(By.CLASS_NAME, 'el-upload__input')
+            uploadfile = elements[-1]
+            uploadfile.send_keys(file_path)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"文件未找到: {str(e)}")
         except Exception as e:
-            print(f"文件上传失败: {str(e)}")
-            raise
-
+            raise RuntimeError(f"上传过程中发生错误: {str(e)}")
     def create_process(self, description):
         if not description:
             raise ValueError("Description cannot be empty")
@@ -99,5 +89,4 @@ class ProcessCreatePage:
         self.select_flow()
         self.upload_file()
         self._wait_element_clickable(self.submit_locator).click()
-
-        return WebDriverWait(self.driver, 10).until(EC.url_contains("process/list"))
+        print("流程创建成功")

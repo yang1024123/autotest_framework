@@ -1,8 +1,5 @@
-from datetime import datetime
-
 import pytest
 import requests
-import json
 import allure
 
 @allure.feature("按线路名称查询")

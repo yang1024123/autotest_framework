@@ -6,7 +6,7 @@ def test_valid_login(setup_driver):
     login_page = LoginPage(setup_driver)
     login_page.navigate()
     login_page.login("cs001", "Hmdz1234.")
-    assert login_page.is_logged_in(), "Login failed"
+    assert login_page.is_logged_in(), '登录成功！'
 
 def test_invalid_login(setup_driver):
     login_page = LoginPage(setup_driver)
